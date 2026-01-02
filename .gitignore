@@ -1,0 +1,4 @@
+build/
+venv/
+result.csv
+training_plot.png
