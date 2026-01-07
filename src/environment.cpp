@@ -50,7 +50,7 @@ double environment::getReward(coordinates &state, int action){
   } 
   if(action != 1){
     //std::cout << "movimento lungo y" << std::endl;
-    reward += -5.0;
+    reward += -30.0;
   }
   reward += -1;
   return reward;

@@ -1,5 +1,3 @@
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Window.hpp>
 #include <optional>
 #include <iostream>
 #include <vector>
@@ -12,6 +10,7 @@
 #include "struct.hpp"
 #include "environment.hpp"
 #include "agent.hpp"
+#include "display.hpp"
 
 int main(int argc, char* argv[]){
   if(argc != 5){
@@ -26,7 +25,7 @@ int main(int argc, char* argv[]){
   /*
   double alpha = 0.1;
   double gamma = 0.99;
-  int m_updates = 10000;
+  int m_updates = 10000;  
   int batchSize = 1;
   int n_episodes = m_updates * batchSize;
   */
@@ -44,7 +43,7 @@ int main(int argc, char* argv[]){
     for(int b = 0; b < batchSize; b++){
       double episode_rewards = 0.0;
       coordinates current_state = env.reset();
-   
+      
       env.gameOn();
 
       while(env.isGameOn()){
@@ -77,15 +76,43 @@ int main(int argc, char* argv[]){
 
   Datafile.close();
 
-  sf::Window window(sf::VideoMode({800, 600}), "MDP");
+  display gui;
 
-  while(window.isOpen()){
-    while(const std::optional event = window.pollEvent()){
-      if(event->is<sf::Event::Closed>()) window.close();
-    }
-  }
+  sf::Clock clock;
+  float accumulator = 0.0f;
+  const float stepTime = 1.0f;
+
+  //std::vector<coordinates> initial_conditions = { {1, 1}, {1, 2}, {1, 3}, {1, 4}, {1, 5}};
+
+  env.gameOn();
   
-  window.display();
+  coordinates state = {0, 2};
+
+  while(gui.isOpen() && env.isGameOn()){
+    sf::Time dt = clock.restart();
+    accumulator += dt.asSeconds(); 
+
+    if(!gui.handleEvents()) break;
+
+    if(accumulator >= stepTime){
+        
+      int action = robot.chooseAction(state);
+  
+      coordinates next_state;
+      next_state.z = state.z + 1;
+      next_state.y = state.y + action - 1;
+        
+      state = next_state;
+
+      if(!env.isValid(state)) env.gameOff();
+      
+      accumulator = 0.0f;
+    }
+
+    gui.render(env, state);
+
+    if(env.isGoal(state)) state = env.reset();
+  }
 
   return 0;
 }
