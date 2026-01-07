@@ -16,6 +16,7 @@ set(SOURCES
     src/main.cpp
     src/environment.cpp
     src/agent.cpp
+    src/display.cpp
 )
 
 add_executable(main ${SOURCES})
